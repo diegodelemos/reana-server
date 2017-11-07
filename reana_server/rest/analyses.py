@@ -380,3 +380,99 @@ def analysis_status(analysis_id):  # noqa
         return jsonify({"message": str(e)}), 400
     except Exception as e:
         return jsonify({"message": str(e)}), 500
+
+
+@blueprint.route('/analyses/<analysis_id>/workspace/outputs', methods=['GET'])
+def analysis_outputs(analysis_id):  # noqa
+    r"""Get analysis output files list.
+
+    ---
+    get:
+      summary: Get the output files list of a given analysis.
+      description: >-
+        This resource is expecting an analysis UUID and it will return a list
+        of its output files.
+      operationId: get_analysis_outputs
+      produces:
+        - application/json
+      parameters:
+        - name: organization
+          in: query
+          description: Required. Organization which the worklow belongs to.
+          required: true
+          type: string
+        - name: user
+          in: query
+          description: Required. UUID of workflow owner.
+          required: true
+          type: string
+        - name: analysis_id
+          in: path
+          description: Required. Analysis UUID.
+          required: true
+          type: string
+      responses:
+        200:
+          description: >-
+            Request succeeded. The list of output files for the given analysis
+            has been returned.
+          schema:
+            type: object
+            properties:
+              last-modified:
+                type: string
+                format: date-time
+                description: >-
+                  Last time the file was modified, expressed in ISO 8601
+                  format.
+              name:
+                type: string
+                description: >-
+                  File name (it can be single name or path to the file.)
+              size:
+                type: integer
+                description: File size in bytes.
+          examples:
+            application/json:
+              {
+                "name": "step1/output.vd",
+                "last-modified": "2017-11-07T10:25:17.571456",
+                "size": "6144",
+              }
+        400:
+          description: >-
+            Request failed. The incoming data specification seems malformed.
+          examples:
+            application/json:
+              {
+                "message": "Malformed request."
+              }
+        404:
+          description: >-
+            Request failed. Workflow not found.
+          examples:
+            application/json:
+              {
+                "message": "User 00000000-0000-0000-0000-000000000000
+                            is not allowed to access workflow
+                            256b25f4-4cfb-4684-b7a8-73872ef455a1"
+              }
+        500:
+          description: >-
+            Request failed. Internal controller error.
+    """
+    try:
+        user = request.args['user'],
+        organization = request.args['organization'],
+        workflow_id = analysis_id
+
+        response, http_response = rwc_api_client.api.get_workflow_outputs(
+            user=user,
+            organization=organization,
+            workflow_id=workflow_id).result()
+
+        return jsonify(response), http_response.status_code
+    except KeyError as e:
+        return jsonify({"message": str(e)}), 400
+    except Exception as e:
+        return jsonify({"message": str(e)}), 500
