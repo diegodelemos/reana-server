@@ -1,6 +1,13 @@
 Changes
 =======
 
+Version 0.7.1 (2020-11-09)
+--------------------------
+
+- Adds support for restarting yadage workflows (through ``accept_metadir`` operational option).
+- Adds new server version field to the ``/api/you`` endpoint.
+- Pins Celery version less that 5 because of conflicting kombu depenency.
+
 Version 0.7.0 (2020-10-20)
 --------------------------
 
